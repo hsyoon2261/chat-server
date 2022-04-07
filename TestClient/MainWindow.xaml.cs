@@ -430,6 +430,17 @@ namespace ChatClient2
             var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_CHAT, Body);
             PostSendPacket(sendData);
         }
+        private void TextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                var request = new CSBaseLib.PKTReqRoomChat() { ChatMessage = textBoxSendChat.Text };
+
+                var Body = MessagePackSerializer.Serialize(request);
+                var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_CHAT, Body);
+                PostSendPacket(sendData);
+            }
+        }
 
         private void Window_Closed(object sender, EventArgs e)
         {

@@ -5,6 +5,39 @@ namespace Server
     {
         static void Main(string[] args)
         {
+            //server setting
+            var serverOption = ParseCommandLine(args);
+            if(serverOption == null)
+            {
+                //use default setting
+                return;
+            }
+
+           //Mainserver = socket 통신 진입 class
+            var serverApp = new MainServer();
+            serverApp.InitConfig(serverOption);
+
+            serverApp.CreateStartServer();
+
+            MainServer.MainLogger.Info("Press q to shut down the server");
+            
+            while (true)
+            {
+                //why?
+                System.Threading.Thread.Sleep(50);
+
+                if (Console.KeyAvailable)
+                {
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    if (key.KeyChar == 'q')
+                    {
+                        Console.WriteLine("Server Terminate ~~~");
+                        serverApp.StopServer();
+                        break;
+                    }
+                }
+                                
+            }
 
         }
         //ChatServerOption세팅, 이걸 활용해서 port, max client number등 변경시에

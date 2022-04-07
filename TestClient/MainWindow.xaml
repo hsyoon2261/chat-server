@@ -35,8 +35,10 @@
         <TextBox x:Name="textBoxRoomNum" HorizontalAlignment="Left" Height="19" Margin="23,390,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="45"/>
         <Button Content="방 입장" HorizontalAlignment="Left" Height="21" Margin="73,388,0,0" VerticalAlignment="Top" Width="65" Click="Button_Click_3"/>
         <Button Content="방 나가기" HorizontalAlignment="Left" Height="21" Margin="23,414,0,0" VerticalAlignment="Top" Width="65" Click="Button_Click_4"/>
+        <Button Content="clear" HorizontalAlignment="Left" Height="21" Margin="95,414,0,0" VerticalAlignment="Top" Width="40" Click="Button_Click_4"/>
+
         <ListBox x:Name="listBoxChat" HorizontalAlignment="Left" Height="216" Margin="153,193,0,0" VerticalAlignment="Top" Width="318" Grid.ColumnSpan="2"/>
-        <TextBox x:Name="textBoxSendChat" HorizontalAlignment="Left" Height="22" Margin="153,416,0,0" TextWrapping="Wrap" Text="Hi~~" VerticalAlignment="Top" Width="271" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="textBoxSendChat" KeyDown="TextBox_KeyDown" HorizontalAlignment="Left" Height="22" Margin="153,416,0,0" TextWrapping="Wrap" Text="Hi~~" VerticalAlignment="Top" Width="271" Grid.ColumnSpan="2"/>
         <Button Content="chat" HorizontalAlignment="Left" Height="21" Margin="136,415,0,0" VerticalAlignment="Top" Width="42" Click="Button_Click_5" Grid.Column="1"/>
         <ListBox x:Name="listBoxLog" HorizontalAlignment="Left" Height="111" Margin="10,498,0,0" VerticalAlignment="Top" Width="484" Grid.ColumnSpan="2"/>
         <TextBox x:Name="textBoxEcho" HorizontalAlignment="Left" Height="25" Margin="13,142,0,0" TextWrapping="Wrap" Text="test1" VerticalAlignment="Top" Width="353" Grid.ColumnSpan="2"/>
