@@ -1,7 +1,7 @@
-﻿namespace Server
-{
-    public class ReceiveFilter
-    {
-        
-    }
-}
+﻿// namespace Server
+// {
+//     public class ReceiveFilter
+//     {
+//         
+//     }
+// }

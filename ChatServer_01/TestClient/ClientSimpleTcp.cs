@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Net;
+using System.Text;
 
 namespace ChatClient2
 {
@@ -13,6 +14,9 @@ namespace ChatClient2
         //소켓연결        
         public bool Connect(string ip, int port)
         {
+            //string host = Dns.GetHostName();
+            //IPHostEntry ipHost = Dns.GetHostEntry(host);
+            //IPAddress ipAddr = ipHost.AddressList[1];
             try
             {
                 IPAddress serverIP = IPAddress.Parse(ip);
@@ -20,12 +24,17 @@ namespace ChatClient2
 
                 Sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 Sock.Connect(new IPEndPoint(serverIP, serverPort));
+                if (Sock.Connected == true)
+                {
+                    byte[] sendBuff = Encoding.UTF8.GetBytes("Hello World this is for test");
+                    int sendBytes = Sock.Send(sendBuff);
+                }
+
 
                 if (Sock == null || Sock.Connected == false)
                 {
                     return false;
                 }
-
                 return true;
             }
             catch (Exception ex)

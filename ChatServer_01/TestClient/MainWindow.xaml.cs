@@ -366,6 +366,7 @@ namespace ChatClient2
             {
                 labelConnState.Content = string.Format("{0}. 서버에 접속 중", DateTime.Now);
                 ClientState = CLIENT_STATE.CONNECTED;
+                labelConnState.Content = string.Format($"{ClientState}");
             }
             else
             {
