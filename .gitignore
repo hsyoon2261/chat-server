@@ -501,7 +501,6 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 # End of https://www.toptal.com/developers/gitignore/api/rider
-/ChatServer_1/.idea/
-/ChatServer_1/00_client_bin/
-/ChatServer_1/Server/.idea/
-/ChatServer_1/TestClient/.idea/
+.idea/
+00_client_bin/
+
