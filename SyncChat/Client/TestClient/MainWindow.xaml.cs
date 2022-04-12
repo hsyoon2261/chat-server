@@ -275,24 +275,26 @@ namespace ChatClient2
 
                 case PACKETID.RES_ROOM_ENTER:
                 {
-                    var resData = MessagePackSerializer.Deserialize<PKTResRoomEnter>(packet.BodyData);
-
-                    if (resData.Result == (short) ERROR_CODE.NONE)
-                    {
-                        ClientState = CLIENT_STATE.ROOM;
-                        DevLog.Write("방 입장 성공", LOG_LEVEL.INFO);
-                    }
-                    else
-                    {
-                        DevLog.Write(
-                            string.Format("방입장 실패: {0} {1}", resData.Result, ((ERROR_CODE) resData.Result).ToString()),
-                            LOG_LEVEL.INFO);
-                    }
+                    ClientState = CLIENT_STATE.ROOM;
+                    DevLog.Write("방 입장 성공", LOG_LEVEL.INFO);
+                    // var resData = MessagePackSerializer.Deserialize<PKTResRoomEnter>(packet.BodyData);
+                    //
+                    // if (resData.Result == (short) ERROR_CODE.NONE)
+                    // {
+                    //     ClientState = CLIENT_STATE.ROOM;
+                    //     DevLog.Write("방 입장 성공", LOG_LEVEL.INFO);
+                    // }
+                    // else
+                    // {
+                    //     DevLog.Write(
+                    //         string.Format("방입장 실패: {0} {1}", resData.Result, ((ERROR_CODE) resData.Result).ToString()),
+                    //         LOG_LEVEL.INFO);
+                    // }
                 }
                     break;
                 case PACKETID.NTF_ROOM_USER_LIST:
                 {
-                    var ntfData = MessagePackSerializer.Deserialize<PKTNtfRoomUserList>(packet.BodyData);
+                    //var ntfData = MessagePackSerializer.Deserialize<PKTNtfRoomUserList>(packet.BodyData);
 
                     foreach (var user in ntfData.UserIDList)
                     {

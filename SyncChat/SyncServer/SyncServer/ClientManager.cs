@@ -21,23 +21,24 @@ namespace SyncServer
 
     public class ClientManager : IDisposable
     {
+        private ClientSession cSession;
+        private Socket socket { get; set; }
+        private string id { get; set; }
+        CLIENT_STATE ClientState = CLIENT_STATE.NONE;
+
         public ClientManager(Socket socket)
         {
             this.socket = socket;
-            this.cliendpoint = socket.RemoteEndPoint;
+            cSession = new ClientSession(socket);
+            ClientState = CLIENT_STATE.CONNECTED;
         }
-
-        private Socket socket { get; set; }
-        private string id { get; set; }
-        private string password { get; set; }
-        public int room { get; set; }
-        private EndPoint cliendpoint { get; set; }
-        private byte[] numBuff = new byte[4];
-        private bool running = true;
+        
+        private bool running = true; //아직안쓰지만 일단 두자.
         private int PacketHeaderSize = 5;
         Queue<PacketData> RecvPacketQueue = new Queue<PacketData>();
-
-        //TODO Run()Method를 빼내야한다. 상속받아서 override로 빼내자.
+        
+        
+        //TODO Run()Method를 빼내야한다. 상속받아서 override로 빼내자. => 걍 클라정보를 뺌(완료)
         public void Run()
         {
             byte[] recvBuff = new byte[1024];
@@ -108,7 +109,6 @@ namespace SyncServer
                 SendProcess(packet);
                 Thread.Sleep(300); //send오류 찾기위해
                 //byte[] finalsend = PacketToBytes.Make(sendpacket.PacketID, sendpacket.BodyData);
-                
             }
             //update
         }
@@ -119,33 +119,40 @@ namespace SyncServer
             {
                 case 1003: //Login
                     Console.WriteLine("login completed");
-                    this.id = Encoding.UTF8.GetString(packet.BodyData);
+                    //this.id
+                    cSession.id = Encoding.UTF8.GetString(packet.BodyData);
                     Console.WriteLine($"id : {this.id}");
-                    byte[] sendmsg = PacketToBytes.Make(packet.PacketID, packet.BodyData);
-                    socket.Send(sendmsg);
+                    SendManager.BroadCast(socket,packet.PacketID,packet.BodyData);
+                    ClientState = CLIENT_STATE.LOGIN;
                     break;
-                case 1015: //RES_ROOM_ENTER + NTF_ROOM_ENTER
-                    break;
-                case 1021: //RES_ROOM_LEAVE + NTF_ROOM_CHAT
+                
+                case 1015: //RES_ROOM_ENTER 
+                    //Todo clientstat != login 인 경우 처리해줘야함.. 언젠가.. 
+                    int success = RoomManager.Enter(cSession, packet.BodyData, socket);
+                    if (success != -1)
+                    {
+                        cSession.roomNum = success;
+                        ClientState = CLIENT_STATE.ROOM;
+                        break;
+                    }
+                    else
+                    //fail message to client
+                        break;
+                
+                case 1021: //RES_ROOM_LEAVE
+                    RoomManager.Leave(cSession, packet.BodyData, socket);
+                    ClientState = CLIENT_STATE.LOGIN;
                     break;
                 case 1026: //response Room Chat + NTF_ROOM_CHAT
+                    RoomManager.Chat(cSession, packet.BodyData, socket);
                     break;
                 case 1100: //Log out
                     break;
                 case 8021: //Disconnect
+                    Dispose();
                     break;
             }
         }
-
-
-        public void Enter()
-        {
-        }
-
-        public void Chat(int rommnum, string msg)
-        {
-        }
-
 
         public void Dispose()
         {
@@ -160,8 +167,5 @@ namespace SyncServer
             ROOM = 3
         }
     }
-
-    public class RoomManager
-    {
-    }
+    
 }
