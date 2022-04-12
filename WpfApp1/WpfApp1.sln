@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp1", "WpfApp1\WpfApp1.csproj", "{773ECA63-4F02-4C56-BBF6-FCC1C91A94CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{081B6D96-CB85-4C9D-AC1D-CAE7A40906C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{2812367A-40FE-4D6F-A1EB-BEA39C101CEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{773ECA63-4F02-4C56-BBF6-FCC1C91A94CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{773ECA63-4F02-4C56-BBF6-FCC1C91A94CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{773ECA63-4F02-4C56-BBF6-FCC1C91A94CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{081B6D96-CB85-4C9D-AC1D-CAE7A40906C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{081B6D96-CB85-4C9D-AC1D-CAE7A40906C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{081B6D96-CB85-4C9D-AC1D-CAE7A40906C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{081B6D96-CB85-4C9D-AC1D-CAE7A40906C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2812367A-40FE-4D6F-A1EB-BEA39C101CEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2812367A-40FE-4D6F-A1EB-BEA39C101CEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2812367A-40FE-4D6F-A1EB-BEA39C101CEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2812367A-40FE-4D6F-A1EB-BEA39C101CEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

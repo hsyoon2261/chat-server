@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Core;
 
 namespace WpfApp1
 {
@@ -21,10 +24,36 @@ namespace WpfApp1
     /// </summary>
     public partial class MainWindow : Window
     {
+        enum CLIENT_STATE
+        {
+            NONE = 0,
+            CONNECTED = 1,
+            LOGIN = 2,
+            ROOM = 3
+        }
+        CLIENT_STATE ClientState = CLIENT_STATE.NONE;
+        bool IsBackGroundProcessRunning = false;
+        System.Windows.Threading.DispatcherTimer dispatcherUITimer = new System.Windows.Threading.DispatcherTimer();
 
+
+
+        
         public MainWindow()
         {
             InitializeComponent();
+            IsBackGroundProcessRunning = true;
+
+            dispatcherUITimer.Interval = new TimeSpan(0, 0, 0, 0, 100);
+            dispatcherUITimer.Start();
+            if (ClientState == CLIENT_STATE.CONNECTED)
+            {
+                labelConnState.Content = string.Format(" 서버에 접속 실패");
+
+            }
+
+
+
+
         }
         //가입
         private void Button_Click_0(object sender, RoutedEventArgs e)
@@ -43,15 +72,25 @@ namespace WpfApp1
             }
 
             int port = Convert.ToInt16(textBoxPort.Text);
-            try
-            {
-                
+            IPAddress ipAd = IPAddress.Parse(address);
+            IPEndPoint ipEndPoint = new IPEndPoint(ipAd, port);
+            Socket socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socket.Connect(ipEndPoint);
 
-            }
-            catch (Exception e)
-            {
-                labelConnState.Content = string.Format("{0}. 서버에 접속 실패", e.ToString());
-            }
+            // Connector connector = new Connector();
+            // connector.Connect(ipEndPoint,()=> new ChattingServerSession());
+            // ClientState = CLIENT_STATE.CONNECTED;
+            
+
+            // try
+            // {
+            //                     
+            //
+            // }
+            // catch (Exception er)
+            // {
+            //     labelConnState.Content = string.Format("{0}. 서버에 접속 실패", er.ToString());
+            // }
 
         }
 

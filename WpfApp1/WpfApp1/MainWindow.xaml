@@ -22,7 +22,7 @@
         <Label Content="Port 번호:" HorizontalAlignment="Left" Height="23" Margin="164,50,0,0" VerticalAlignment="Top"
                Width="62" />
         <TextBox x:Name="textBoxPort" HorizontalAlignment="Left" Height="23" Margin="229,50,0,0" TextWrapping="Wrap"
-                 Text="32452" VerticalAlignment="Top" Width="77" Grid.ColumnSpan="2" />
+                 Text="12345" VerticalAlignment="Top" Width="77" Grid.ColumnSpan="2" />
         <CheckBox x:Name="checkBoxLocalHostIP" Content="localHost 사용" HorizontalAlignment="Left" Height="17"
                   Margin="19,54,0,0" VerticalAlignment="Top" Width="98" Grid.Column="1" />
         <Label x:Name="labelConnState" Content="서버 상태:" HorizontalAlignment="Left" Height="27" Margin="153,23,0,0"
