@@ -1,0 +1,7 @@
+﻿namespace SyncServer
+{
+    class SendManager
+    {
+        
+    }
+}
