@@ -29,15 +29,18 @@ namespace SyncServer
                     chatroomList.Add(rNumCand, newRoom);
                 }
 
-                short others = 1015;
-                byte[] sendothers = Encoding.UTF8.GetBytes($"{cSession.id} 님이 {rNumCand}방에 입장하셨습니다.");
-
+                short others = (short) PACKETID.NTF_ROOM_CHAT;
+                byte[] entermsg = Encoding.UTF8.GetBytes($"{cSession.id} 님이 {rNumCand}방에 입장하셨습니다.");
+                short listbox = (short) PACKETID.NTF_ROOM_USER_LIST;
+                byte[] enterid = Encoding.UTF8.GetBytes(cSession.id);
                 short personal = 1016;
-                byte[] toMe = Encoding.UTF8.GetBytes($"{rNumCand}방에 입장하셨습니다.");
+                byte[] msgtoMe = Encoding.UTF8.GetBytes($"{rNumCand}방에 입장하셨습니다.");
                 //broadcast to other member
-                SendManager.BroadCast(chatroomList[rNumCand].RoomMember ,socket ,others ,sendothers);
+                SendManager.BroadCast(chatroomList[rNumCand].RoomMember ,socket ,others ,entermsg,1);
+                //update list
+                SendManager.BroadCast(chatroomList[rNumCand].RoomMember,socket,listbox,enterid,0);
                 //broadcast to me
-                SendManager.BroadCast(socket,personal,toMe);
+                SendManager.BroadCast(socket,personal,msgtoMe);
                 return rNumCand;
             }
             else
@@ -46,12 +49,10 @@ namespace SyncServer
 
         public static void Leave(ClientSession cSession, byte[] bodyData, Socket socket)
         {
-            throw new NotImplementedException();
         }
 
         public static void Chat(ClientSession cSession, byte[] bodyData, Socket socket)
         {
-            throw new NotImplementedException();
         }
     }
 }

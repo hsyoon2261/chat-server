@@ -38,6 +38,9 @@ namespace ChatClient2
 
         System.Windows.Threading.DispatcherTimer dispatcherUITimer = new System.Windows.Threading.DispatcherTimer();
 
+        private List<string> roomMember = new List<string>();
+        private string userName;
+
         enum CLIENT_STATE
         {
             NONE = 0,
@@ -58,7 +61,7 @@ namespace ChatClient2
         {
             InitializeComponent();
 
-            PacketBuffer.Init((8096 * 10), CSBaseLib.PacketDef.PACKET_HEADER_SIZE, 1024);
+            PacketBuffer.Init((8096 * 10), 5, 1024);
 
             IsNetworkThreadRunning = true;
             NetworkReadThread = new System.Threading.Thread(this.NetworkReadProcess);
@@ -162,12 +165,12 @@ namespace ChatClient2
                         }
 
                         var packet = new PacketData();
-                        packet.DataSize = (short) (data.Count - PacketHeaderSize);
+                        packet.DataSize = (short) (data.Count - 5);
                         packet.PacketID = BitConverter.ToInt16(data.Array, data.Offset + 2);
                         packet.Type = (SByte) data.Array[(data.Offset + 4)];
                         packet.BodyData = new byte[packet.DataSize];
-                        Buffer.BlockCopy(data.Array, (data.Offset + PacketHeaderSize), packet.BodyData, 0,
-                            (data.Count - PacketHeaderSize));
+                        Buffer.BlockCopy(data.Array, (data.Offset + 5), packet.BodyData, 0,
+                            (data.Count - 5));
                         lock (((System.Collections.ICollection) RecvPacketQueue).SyncRoot)
                         {
                             RecvPacketQueue.Enqueue(packet);
@@ -245,6 +248,13 @@ namespace ChatClient2
             PostSendPacket(sendData);
         }
 
+        void RoomEnter(int roomnumber)
+        {
+            byte[] body = BitConverter.GetBytes(roomnumber);
+            var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_ENTER, body);
+            PostSendPacket(sendData);
+        }
+
         public void PostSendPacket(byte[] sendData)
         {
             if (Network.IsConnected() == false)
@@ -269,7 +279,8 @@ namespace ChatClient2
                 case PACKETID.RES_LOGIN:
                 {
                     ClientState = CLIENT_STATE.LOGIN;
-                    DevLog.Write("로그인 성공", LOG_LEVEL.INFO);
+                    userName = Encoding.UTF8.GetString(packet.BodyData);
+                    DevLog.Write($"로그인 성공, {userName}", LOG_LEVEL.INFO);
                 }
                     break;
 
@@ -277,6 +288,7 @@ namespace ChatClient2
                 {
                     ClientState = CLIENT_STATE.ROOM;
                     DevLog.Write("방 입장 성공", LOG_LEVEL.INFO);
+                    roomMember.Add(userName);
                     // var resData = MessagePackSerializer.Deserialize<PKTResRoomEnter>(packet.BodyData);
                     //
                     // if (resData.Result == (short) ERROR_CODE.NONE)
@@ -294,18 +306,20 @@ namespace ChatClient2
                     break;
                 case PACKETID.NTF_ROOM_USER_LIST:
                 {
+                    listBoxRoomUserList.Items.Add(Encoding.UTF8.GetString(packet.BodyData));
+
                     //var ntfData = MessagePackSerializer.Deserialize<PKTNtfRoomUserList>(packet.BodyData);
 
-                    foreach (var user in ntfData.UserIDList)
-                    {
-                        listBoxRoomUserList.Items.Add(user);
-                    }
+                    // foreach (var user in ntfData.UserIDList)
+                    // {
+                    //     listBoxRoomUserList.Items.Add(user);
+                    // }
                 }
                     break;
                 case PACKETID.NTF_ROOM_NEW_USER:
                 {
-                    var ntfData = MessagePackSerializer.Deserialize<PKTNtfRoomNewUser>(packet.BodyData);
-                    listBoxRoomUserList.Items.Add(ntfData.UserID);
+                    string chatmember = Encoding.UTF8.GetString(packet.BodyData);
+                    listBoxRoomUserList.Items.Add(chatmember);
                 }
                     break;
 
@@ -404,15 +418,17 @@ namespace ChatClient2
         // 방 입장
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            var roomNum = textBoxRoomNum.Text.ToInt32();
+            var roomNum = textBoxRoomNum.Text.ToInt16();
 
             DevLog.Write("서버에 방 입장 요청", LOG_LEVEL.INFO);
+            RoomEnter(roomNum);
+            roomMember.Add(userName);
 
-            var request = new CSBaseLib.PKTReqRoomEnter() {RoomNumber = roomNum};
+            //var request = new CSBaseLib.PKTReqRoomEnter() {RoomNumber = roomNum};
 
-            var Body = MessagePackSerializer.Serialize(request);
-            var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_ENTER, Body);
-            PostSendPacket(sendData);
+            //var Body = MessagePackSerializer.Serialize(request);
+            //var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_ENTER, Body);
+            //PostSendPacket(sendData);
         }
 
         // 방 나가기

@@ -29,7 +29,7 @@
     }
 
     // 1 ~ 10000
-    public enum PACKETID : int
+    public enum PACKETID : short
     {
         REQ_RES_TEST_ECHO = 101,
         

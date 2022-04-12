@@ -82,6 +82,7 @@ namespace SyncServer
                     else
                     {
                         Console.WriteLine("소켓을 엑세스하는 동안 오류가 발생했습니다.");
+                        break;
                     }
 
                     while (RecvPacketQueue.Count > 0)
@@ -121,7 +122,7 @@ namespace SyncServer
                     Console.WriteLine("login completed");
                     //this.id
                     cSession.id = Encoding.UTF8.GetString(packet.BodyData);
-                    Console.WriteLine($"id : {this.id}");
+                    Console.WriteLine($"id : {cSession.id}");
                     SendManager.BroadCast(socket,packet.PacketID,packet.BodyData);
                     ClientState = CLIENT_STATE.LOGIN;
                     break;
@@ -156,6 +157,7 @@ namespace SyncServer
 
         public void Dispose()
         {
+            
             socket?.Dispose();
         }
 

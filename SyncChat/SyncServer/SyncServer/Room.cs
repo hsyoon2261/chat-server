@@ -12,11 +12,12 @@ namespace SyncServer
     //TODO room 인터페이스 정의 : (로비, 채팅방, 게임룸 등등..)
     public class Room
     {
-        public HashSet<Socket> RoomMember { get; set; }
+        public HashSet<Socket> RoomMember = new HashSet<Socket>();
         public int roomNumber { get; set; }
         public int maxMember = 10;
         
-        
+
+
         public void DeleteMember(Socket socket)
         {
             RoomMember.Remove(socket);
