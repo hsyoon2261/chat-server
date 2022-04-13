@@ -96,7 +96,7 @@ namespace SyncServer
             catch (Exception e)
             {
                 Console.WriteLine("클라이언트쪽에서 접속을 끊었습니다.");
-                Dispose();
+                //Dispose();
             }
         }
 
@@ -143,16 +143,19 @@ namespace SyncServer
                         break;
                 
                 case 1021: //RES_ROOM_LEAVE
-                    RoomManager.Leave(cSession, packet.BodyData, socket);
+                    RoomManager.Leave(cSession, packet.BodyData, socket,0);
                     ClientState = CLIENT_STATE.LOGIN;
                     roomNum = null;
                     break;
                 case 1026: //response Room Chat + NTF_ROOM_CHAT
                     RoomManager.Chat(cSession, packet.BodyData, socket);
                     break;
-                case 1100: //Log out
+                case 1100: //log out
+                    RoomManager.Leave(cSession, packet.BodyData, socket,1);
                     break;
-                case 8021: //Disconnect
+                case 1005: //Disconnect
+                    Console.WriteLine("로그아웃");
+                    RoomManager.Leave(cSession, packet.BodyData , socket,1);
                     Dispose();
                     break;
             }

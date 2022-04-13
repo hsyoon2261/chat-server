@@ -59,16 +59,38 @@ namespace SyncServer
                 return -1;
         }
 
-        public static void Leave(ClientSession cSession, byte[] bodyData, Socket socket)
+        public static void Leave(ClientSession cSession, byte[] ?bodyData, Socket ?socket, int flag)
         {
-            int rNum = BitConverter.ToInt16(bodyData);
-            lock (_lock)
+            if (cSession.roomNum == -1)
             {
-                chatroomList[rNum].DeleteMember(socket,cSession.id);
+                Console.WriteLine("bad");
             }
-            //broadcast to others user leave
-            //update room member list (to 기존멤버들에게) 
-            //state update to me
+            else
+            {
+                int rNum = cSession.roomNum;
+                Console.WriteLine(rNum);
+                lock (_lock)
+                {
+                    chatroomList[rNum].DeleteMember(socket, cSession.id);
+                }
+
+                //broadcast to others user leave
+                short roomchatid = (short) PACKETID.NTF_ROOM_CHAT;
+                byte[] leaveMsg = Encoding.UTF8.GetBytes($"{cSession.id} 님이 퇴장하셨습니다.");
+                SendManager.BroadCast(chatroomList[rNum].RoomMember, socket, roomchatid, leaveMsg, 0);
+                //update room member list (to 기존멤버들에게)
+                short listbox = (short) PACKETID.NTF_ROOM_LEAVE_USER;
+                byte[] leaveId = Encoding.UTF8.GetBytes(cSession.id);
+                SendManager.BroadCast(chatroomList[rNum].RoomMember, socket, listbox, leaveId, 0);
+                //state update to me
+                if (flag == 0)
+                {
+                    short leaveMe = (short) PACKETID.RES_ROOM_LEAVE;
+                    SendManager.BroadCast(socket, leaveMe, leaveId);
+                }
+
+            }
+  
 
         }
 

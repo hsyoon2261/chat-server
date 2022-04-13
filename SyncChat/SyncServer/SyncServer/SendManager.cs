@@ -16,6 +16,8 @@ namespace SyncServer
             byte[] sendmsg = PacketToBytes.Make(id, msg);
             foreach (Socket s in set)
             {
+                if (s == null)
+                    continue;
                 if (s == socket && flag == 1)
                     continue;
                 s.Send(sendmsg);

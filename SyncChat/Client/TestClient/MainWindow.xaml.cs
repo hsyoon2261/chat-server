@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -180,8 +181,9 @@ namespace ChatClient2
                 }
                 else
                 {
-                    Network.Close();
                     SetDisconnectd();
+                    Thread.Sleep(100);
+                    Network.Close();
                     DevLog.Write("서버와 접속 종료 !!!", LOG_LEVEL.INFO);
                 }
             }
@@ -212,9 +214,13 @@ namespace ChatClient2
         //TODO
         public void SetDisconnectd()
         {
+            var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.NTF_MUST_CLOSE, null);
+            PostSendPacket(sendData);
             ClientState = CLIENT_STATE.NONE;
+            listBoxRoomUserList.Items.Clear();
 
-            SendPacketQueue.Clear();
+
+            //SendPacketQueue.Clear();
 
             //ClearUIRoomOut();
             //labelStatus.Text = "서버 접속이 끊어짐";
@@ -325,26 +331,24 @@ namespace ChatClient2
 
                 case PACKETID.RES_ROOM_LEAVE:
                 {
-                    var resData = MessagePackSerializer.Deserialize<PKTResRoomLeave>(packet.BodyData);
+                    listBoxRoomUserList.Items.Clear();
+                    ClientState = CLIENT_STATE.LOGIN;
+                    DevLog.Write("방 나가기 성공", LOG_LEVEL.INFO);
 
-                    if (resData.Result == (short) ERROR_CODE.NONE)
-                    {
-                        listBoxRoomUserList.Items.Remove(textBoxID.Text);
-                        ClientState = CLIENT_STATE.LOGIN;
-                        DevLog.Write("방 나가기 성공", LOG_LEVEL.INFO);
-                    }
-                    else
-                    {
-                        DevLog.Write(
-                            string.Format("방 나가기 실패: {0} {1}", resData.Result,
-                                ((ERROR_CODE) resData.Result).ToString()), LOG_LEVEL.ERROR);
-                    }
+                    // }
+                    // else
+                    // {
+                    //     DevLog.Write(
+                    //         string.Format("방 나가기 실패: {0} {1}", resData.Result,
+                    //             ((ERROR_CODE) resData.Result).ToString()), LOG_LEVEL.ERROR);
+                    // }
                 }
                     break;
                 case PACKETID.NTF_ROOM_LEAVE_USER:
                 {
-                    var ntfData = MessagePackSerializer.Deserialize<PKTNtfRoomLeaveUser>(packet.BodyData);
-                    listBoxRoomUserList.Items.Remove(ntfData.UserID);
+                    string leaveid = Encoding.UTF8.GetString(packet.BodyData);
+                    //var ntfData = MessagePackSerializer.Deserialize<PKTNtfRoomLeaveUser>(packet.BodyData);
+                    listBoxRoomUserList.Items.Remove(leaveid);
                 }
                     break;
 
@@ -411,19 +415,32 @@ namespace ChatClient2
         {
             DevLog.Write($"서버 접속 끊기", LOG_LEVEL.INFO);
 
-            ClientState = CLIENT_STATE.NONE;
+            //ClientState = CLIENT_STATE.NONE;
             SetDisconnectd();
-            Network.Close();
         }
 
         // 방 입장
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            var roomNum = textBoxRoomNum.Text.ToInt16();
+            switch (ClientState)
+            {
+                case CLIENT_STATE.NONE:
+                    DevLog.Write("접속 부터 하십시오.", LOG_LEVEL.INFO);
+                    break;
+                case CLIENT_STATE.ROOM:
+                    DevLog.Write("먼저 방을 나가십시오.", LOG_LEVEL.INFO);
+                    break;
+                case CLIENT_STATE.LOGIN:
+                    var roomNum = textBoxRoomNum.Text.ToInt16();
+                    DevLog.Write("서버에 방 입장 요청", LOG_LEVEL.INFO);
+                    RequestRoomEnter(roomNum);
+                    roomMember.Add(userName);
+                    break;
+                case CLIENT_STATE.CONNECTED:
+                    DevLog.Write("로그인 부터 하십시오.", LOG_LEVEL.INFO);
+                    break;
 
-            DevLog.Write("서버에 방 입장 요청", LOG_LEVEL.INFO);
-            RequestRoomEnter(roomNum);
-            roomMember.Add(userName);
+            }
 
             //var request = new CSBaseLib.PKTReqRoomEnter() {RoomNumber = roomNum};
 
@@ -436,18 +453,20 @@ namespace ChatClient2
         private void Button_Click_4(object sender, RoutedEventArgs e)
         {
             DevLog.Write("서버에 방 나가기 요청", LOG_LEVEL.INFO);
+            if(ClientState != CLIENT_STATE.ROOM)
+                DevLog.Write($"방에 접속한 상태가 아닙니다. 당신의 상태는 {ClientState.ToString()}입니다.", LOG_LEVEL.INFO);
+            else
+            {
+                var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_LEAVE, null);
+                PostSendPacket(sendData);
+            }
 
-
-            var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_LEAVE, null);
-            PostSendPacket(sendData);
         }
 
         // 방 채팅
         private void Button_Click_5(object sender, RoutedEventArgs e)
         {
-            
             //var request = new CSBaseLib.PKTReqRoomChat() {ChatMessage = textBoxSendChat.Text};
-
             //var Body = MessagePackSerializer.Serialize(request);
             byte[] Body = Encoding.UTF8.GetBytes(textBoxSendChat.Text);
             var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_CHAT, Body);
@@ -471,6 +490,8 @@ namespace ChatClient2
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            SetDisconnectd();
+            Thread.Sleep(100);
             Network.Close();
 
             IsNetworkThreadRunning = false;
