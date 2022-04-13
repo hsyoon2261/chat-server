@@ -33,21 +33,25 @@ namespace SyncServer
             cSession = new ClientSession(socket);
             ClientState = CLIENT_STATE.CONNECTED;
         }
-        
+
         private bool running = true; //아직안쓰지만 일단 두자.
         private int PacketHeaderSize = 5;
         Queue<PacketData> RecvPacketQueue = new Queue<PacketData>();
-        
-        
+
+
         //TODO Run()Method를 빼내야한다. 상속받아서 override로 빼내자. => 걍 클라정보를 뺌(완료)
         public void Run()
         {
             byte[] recvBuff = new byte[1024];
+            Console.WriteLine("쓰레드 종료..");
+
             try
             {
                 while (true)
                 {
+                    Console.WriteLine(socket.Available);
                     int recvBytes = this.socket.Receive(recvBuff);
+                    //Console.WriteLine(recvBytes);
                     if (recvBytes != 0)
                     {
                         byte[] readpacket = new byte[recvBytes];
@@ -58,7 +62,7 @@ namespace SyncServer
                         while (startingPoint < dataSize)
                         {
                             int packetsize = BitConverter.ToInt16(readpacket, startingPoint);
-                            //TODO 데이터 유실 처리 (완)
+                            //TODO 데이터 유실 처리 (완) 이부분정리 
                             var data = new ArraySegment<byte>(readpacket, startingPoint, packetsize);
                             var packet = new PacketData();
                             packet.DataSize = (short) (data.Count - PacketHeaderSize);
@@ -69,7 +73,7 @@ namespace SyncServer
                                 (data.Count - PacketHeaderSize));
                             lock (((System.Collections.ICollection) RecvPacketQueue).SyncRoot)
                             {
-                                Thread.Sleep(100); //read오류찾기위해
+                                //Thread.Sleep(100); //read오류찾기위해
                                 RecvPacketQueue.Enqueue(packet);
                             }
 
@@ -95,7 +99,7 @@ namespace SyncServer
             catch (Exception e)
             {
                 Console.WriteLine("클라이언트쪽에서 접속을 끊었습니다.");
-                //Dispose();
+                socket.Close();
             }
         }
 
@@ -119,10 +123,10 @@ namespace SyncServer
                     //this.id
                     cSession.id = Encoding.UTF8.GetString(packet.BodyData);
                     Console.WriteLine($"id : {cSession.id}");
-                    SendManager.BroadCast(socket,packet.PacketID,packet.BodyData);
+                    SendManager.BroadCast(socket, packet.PacketID, packet.BodyData);
                     ClientState = CLIENT_STATE.LOGIN;
                     break;
-                
+
                 case 1015: //RES_ROOM_ENTER 
                     //Todo clientstat != login 인 경우 처리해줘야함.. 언젠가.. 
                     int success = RoomManager.Enter(cSession, packet.BodyData, socket);
@@ -134,11 +138,11 @@ namespace SyncServer
                         break;
                     }
                     else
-                    //fail message to client
+                        //fail message to client
                         break;
-                
+
                 case 1021: //RES_ROOM_LEAVE
-                    RoomManager.Leave(cSession, packet.BodyData, socket,0);
+                    RoomManager.Leave(cSession, packet.BodyData, socket, 0);
                     ClientState = CLIENT_STATE.LOGIN;
                     roomNum = null;
                     break;
@@ -146,11 +150,11 @@ namespace SyncServer
                     RoomManager.Chat(cSession, packet.BodyData, socket);
                     break;
                 case 1100: //log out
-                    RoomManager.Leave(cSession, packet.BodyData, socket,1);
+                    RoomManager.Leave(cSession, packet.BodyData, socket, 1);
                     break;
                 case 1005: //Disconnect
                     Console.WriteLine("클라이언트 접속 종료");
-                    RoomManager.Leave(cSession, packet.BodyData , socket,1);
+                    RoomManager.Leave(cSession, packet.BodyData, socket, 1);
                     Dispose();
                     break;
             }
@@ -158,7 +162,6 @@ namespace SyncServer
 
         public void Dispose()
         {
-            
             socket?.Dispose();
         }
 
@@ -170,5 +173,4 @@ namespace SyncServer
             ROOM = 3
         }
     }
-    
 }
