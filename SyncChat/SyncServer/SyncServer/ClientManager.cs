@@ -25,6 +25,7 @@ namespace SyncServer
         private Socket socket { get; set; }
         private string id { get; set; }
         CLIENT_STATE ClientState = CLIENT_STATE.NONE;
+        private int? roomNum { get; set; }
 
         public ClientManager(Socket socket)
         {
@@ -134,6 +135,7 @@ namespace SyncServer
                     {
                         cSession.roomNum = success;
                         ClientState = CLIENT_STATE.ROOM;
+                        roomNum = success;
                         break;
                     }
                     else
@@ -143,6 +145,7 @@ namespace SyncServer
                 case 1021: //RES_ROOM_LEAVE
                     RoomManager.Leave(cSession, packet.BodyData, socket);
                     ClientState = CLIENT_STATE.LOGIN;
+                    roomNum = null;
                     break;
                 case 1026: //response Room Chat + NTF_ROOM_CHAT
                     RoomManager.Chat(cSession, packet.BodyData, socket);

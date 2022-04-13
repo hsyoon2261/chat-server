@@ -15,18 +15,20 @@ namespace SyncServer
         public HashSet<Socket> RoomMember = new HashSet<Socket>();
         public int roomNumber { get; set; }
         public int maxMember = 10;
-        
+        public List<string> MemberIds = new List<string>();
 
 
-        public void DeleteMember(Socket socket)
+        public void DeleteMember(Socket socket, string id)
         {
             RoomMember.Remove(socket);
+            MemberIds.Remove(id);
         }
 
-        public void AddMember(int roomnum,Socket socket)
+        public void AddMember(int roomnum,Socket socket,string id)
         {
             roomNumber = roomnum;
             RoomMember.Add(socket);
+            MemberIds.Add(id);
         }
 
     }

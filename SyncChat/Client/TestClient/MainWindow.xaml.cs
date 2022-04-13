@@ -248,7 +248,7 @@ namespace ChatClient2
             PostSendPacket(sendData);
         }
 
-        void RoomEnter(int roomnumber)
+        void RequestRoomEnter(int roomnumber)
         {
             byte[] body = BitConverter.GetBytes(roomnumber);
             var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_ENTER, body);
@@ -318,8 +318,8 @@ namespace ChatClient2
                     break;
                 case PACKETID.NTF_ROOM_NEW_USER:
                 {
-                    string chatmember = Encoding.UTF8.GetString(packet.BodyData);
-                    listBoxRoomUserList.Items.Add(chatmember);
+                    string notice = Encoding.UTF8.GetString(packet.BodyData);
+                    listBoxChat.Items.Add(notice);
                 }
                     break;
 
@@ -351,9 +351,10 @@ namespace ChatClient2
                 case PACKETID.NTF_ROOM_CHAT:
                 {
                     textBoxSendChat.Text = "";
-
-                    var ntfData = MessagePackSerializer.Deserialize<PKTNtfRoomChat>(packet.BodyData);
-                    listBoxChat.Items.Add($"[{ntfData.UserID}]: {ntfData.ChatMessage}");
+                    string chatmsg = Encoding.UTF8.GetString(packet.BodyData);
+                    listBoxChat.Items.Add($"{chatmsg}");
+                    //var ntfData = MessagePackSerializer.Deserialize<PKTNtfRoomChat>(packet.BodyData);
+                    //listBoxChat.Items.Add($"[{ntfData.UserID}]: {ntfData.ChatMessage}");
                 }
                     break;
             }
@@ -421,7 +422,7 @@ namespace ChatClient2
             var roomNum = textBoxRoomNum.Text.ToInt16();
 
             DevLog.Write("서버에 방 입장 요청", LOG_LEVEL.INFO);
-            RoomEnter(roomNum);
+            RequestRoomEnter(roomNum);
             roomMember.Add(userName);
 
             //var request = new CSBaseLib.PKTReqRoomEnter() {RoomNumber = roomNum};
@@ -444,9 +445,11 @@ namespace ChatClient2
         // 방 채팅
         private void Button_Click_5(object sender, RoutedEventArgs e)
         {
-            var request = new CSBaseLib.PKTReqRoomChat() {ChatMessage = textBoxSendChat.Text};
+            
+            //var request = new CSBaseLib.PKTReqRoomChat() {ChatMessage = textBoxSendChat.Text};
 
-            var Body = MessagePackSerializer.Serialize(request);
+            //var Body = MessagePackSerializer.Serialize(request);
+            byte[] Body = Encoding.UTF8.GetBytes(textBoxSendChat.Text);
             var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_CHAT, Body);
             PostSendPacket(sendData);
         }
@@ -455,11 +458,14 @@ namespace ChatClient2
         {
             if (e.Key == System.Windows.Input.Key.Enter)
             {
-                var request = new CSBaseLib.PKTReqRoomChat() {ChatMessage = textBoxSendChat.Text};
-
-                var Body = MessagePackSerializer.Serialize(request);
+                byte[] Body = Encoding.UTF8.GetBytes(textBoxSendChat.Text);
                 var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_CHAT, Body);
                 PostSendPacket(sendData);
+                // var request = new CSBaseLib.PKTReqRoomChat() {ChatMessage = textBoxSendChat.Text};
+                //
+                // var Body = MessagePackSerializer.Serialize(request);
+                // var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_CHAT, Body);
+                // PostSendPacket(sendData);
             }
         }
 
@@ -484,15 +490,15 @@ namespace ChatClient2
         // 모든 게임 방 게임 시작
         private void Button_Click_7(object sender, RoutedEventArgs e)
         {
-            var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_DEV_ALL_ROOM_START_GAME, null);
-            PostSendPacket(sendData);
+            // var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_DEV_ALL_ROOM_START_GAME, null);
+            // PostSendPacket(sendData);
         }
 
         // 모든 게임 방 게임 끝
         private void Button_Click_8(object sender, RoutedEventArgs e)
         {
-            var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_DEV_ALL_ROOM_END_GAME, null);
-            PostSendPacket(sendData);
+            // var sendData = CSBaseLib.PacketToBytes.Make(CSBaseLib.PACKETID.REQ_ROOM_DEV_ALL_ROOM_END_GAME, null);
+            // PostSendPacket(sendData);
         }
     }
 }
