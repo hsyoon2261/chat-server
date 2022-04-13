@@ -14,7 +14,7 @@ namespace NewSyncServer
             
         }
         public Mode mode = Mode.None;
-        private Socket _socket;
+        public Socket _socket;
         private string userName;
         
         public void Register(Socket socket)

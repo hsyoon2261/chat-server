@@ -25,12 +25,11 @@ namespace NewSyncServer
             while (true)
             {
                 Socket clientsocket = serverSocket.Accept();
-                Console.WriteLine("good");
-                
                 ConnectionManager cManager = new ConnectionManager();
                 cManager.Init(clientsocket, () => new ClientSession());
                 if (!cManager.isConnected)
                 {
+                    Console.WriteLine("왜여길들어오지?");
                     cManager.Dispose();
                 }
             }

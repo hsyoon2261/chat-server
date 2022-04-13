@@ -21,6 +21,7 @@ namespace NewSyncServer
                     break;
                 case ClientSession.Mode.Login:
                     LoginMember.Add(user);
+                    break;
             }
         }
 

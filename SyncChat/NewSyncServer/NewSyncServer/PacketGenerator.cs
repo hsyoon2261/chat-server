@@ -37,12 +37,14 @@ namespace NewSyncServer
             var startPoint = 0;
             while (startPoint < dataSize)
             {
+                int packetsize = BitConverter.ToInt16(readPacket, startPoint);
                 var packet = new PacketData();
                 packet.DataSize = (short) (readPacket.Length - PacketHeaderSize);
                 packet.PacketID = BitConverter.ToInt16(readPacket, startPoint + 2);
                 packet.Type = (sbyte) readPacket[startPoint + 4];
+                packet.BodyData = new byte[packet.DataSize];
                 Buffer.BlockCopy(readPacket, PacketHeaderSize, packet.BodyData, 0, packet.DataSize);
-                startPoint = startPoint + packet.DataSize;
+                startPoint += packetsize;
                 packetQueue.Enqueue(packet);
             }
 
@@ -53,8 +55,8 @@ namespace NewSyncServer
         {
             switch (sendPacket.PacketID)
             {
-                case (short) PACKETID.REQ_LOGIN:
-                    if (user.mode != ClientSession.Mode.Lobby)
+                case (short) PACKETID.RES_LOGIN:
+                    if (user.mode == ClientSession.Mode.Lobby)
                     {
                         string id = Encoding.UTF8.GetString(sendPacket.BodyData);
                         user.GetName(id);
@@ -62,7 +64,8 @@ namespace NewSyncServer
                         GameUser.Insert(user,ClientSession.Mode.Login);
                         user.mode = ClientSession.Mode.Login;
                         var welcomeMsg = $"{id}님 로그인 성공하셨습니다.";
-                        var sendMsg = PacketToBytes((short) PACKETID.RES_DB_LOGIN, Encoding.UTF8.GetBytes(welcomeMsg));
+                        var sendMsg = PacketToBytes((short) PACKETID.RES_LOGIN, Encoding.UTF8.GetBytes(welcomeMsg));
+                        user._socket.Send(sendMsg);
                     }
                     break;
             }

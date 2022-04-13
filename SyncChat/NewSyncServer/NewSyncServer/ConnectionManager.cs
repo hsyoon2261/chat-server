@@ -18,12 +18,13 @@ namespace NewSyncServer
             _clientSession = sessionFactory.Invoke();
             _socket = socket;
             _clientSession.Register(socket);
+            Console.WriteLine($"익명 유저 접속 성공 {socket.RemoteEndPoint}");
             var th = new Thread(new ThreadStart(Run));
             th.Start();
             th.Join();
         }
 
-        void Run()
+        public void Run()
         {
             while (isConnected)
             {
@@ -33,6 +34,7 @@ namespace NewSyncServer
                 {
                     while (true)
                     {
+                        
                         var recvBytes = _socket.Receive(recvBuff);
                         
                         if (recvBytes != 0)
@@ -50,6 +52,7 @@ namespace NewSyncServer
                 catch (Exception e)
                 {
                     Console.WriteLine("클라이언트쪽에서 접속을 끊었습니다.");
+                    Console.WriteLine($"{e.ToString()}");
                     isConnected = false;
                 }
             }
@@ -63,6 +66,7 @@ namespace NewSyncServer
             _clientSession = null;
             _socket.Shutdown(SocketShutdown.Both);
             _socket.Close();
+            
 
         }
         public void Dispose()
