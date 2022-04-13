@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -9,7 +10,7 @@ namespace NewSyncServer
         public bool isConnected = true;
         private Socket _socket;
         private ClientSession _clientSession;
-        private List<ClientSession> 
+        private PacketProcess _packetGenerator = new PacketProcess();
 
 
         public void Init(Socket socket, Func<ClientSession> sessionFactory)
@@ -26,23 +27,17 @@ namespace NewSyncServer
         {
             while (isConnected)
             {
-                byte[] recvBuff = new byte[1024];
+                var recvBuff = new byte[1024];
 
                 try
                 {
                     while (true)
                     {
-                        int recvBytes = _socket.Receive(recvBuff);
+                        var recvBytes = _socket.Receive(recvBuff);
+                        
                         if (recvBytes != 0)
                         {
-                            byte[] readpacket = new byte[recvBytes];
-                            Buffer.BlockCopy(recvBuff, 0, readpacket, 0, recvBytes);
-                            var RecvPacketQueue = PacketGenerator.Receive(recvBytes,readpacket);
-                            while (RecvPacketQueue.Count > 0)
-                            {
-                                PacketData sendpacket = RecvPacketQueue.Dequeue();
-                                PacketGenerator.Send(_clientSession,sendpacket);
-                            }
+                            _packetGenerator.Init(_clientSession, recvBytes, recvBuff);
                         }
                         else
                         {
@@ -64,13 +59,15 @@ namespace NewSyncServer
 
         void Destroy()
         {
+            //_packetGenerator.Kick(_clientSession);
+            _clientSession = null;
             _socket.Shutdown(SocketShutdown.Both);
             _socket.Close();
-            Dispose();
-        }
 
+        }
         public void Dispose()
         {
         }
     }
+
 }

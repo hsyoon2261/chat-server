@@ -6,28 +6,35 @@ namespace NewSyncServer
     
     public class GameUser
     {
-        public static List<Socket> TotalMember = new List<Socket>();
+        public static List<ClientSession> TotalMember = new List<ClientSession>();
 
-        public static List<Socket> LoginMember = new List<Socket>();
+        public static List<ClientSession> LoginMember = new List<ClientSession>();
 
 
 
-        public static void Insert(Socket socket, ClientSession.Mode mode)
+        public static void Insert(ClientSession user, ClientSession.Mode mode)
+        {
+            switch (mode)
+            {
+                case ClientSession.Mode.Lobby:
+                    TotalMember.Add(user);
+                    break;
+                case ClientSession.Mode.Login:
+                    LoginMember.Add(user);
+            }
+        }
+
+        public static void Delete(ClientSession user, ClientSession.Mode mode)
         {
             
         }
 
-        public static void Delete(Socket socket, ClientSession.Mode mode)
+        public static void Switch(ClientSession user, ClientSession.Mode now, ClientSession.Mode target)
         {
             
         }
 
-        public static void Switch(Socket socket, ClientSession.Mode now, ClientSession.Mode target)
-        {
-            
-        }
-
-        public static void Destroy(Socket socket, ClientSession.Mode mode)
+        public static void Destroy(ClientSession user, ClientSession.Mode mode)
         {
             
         }

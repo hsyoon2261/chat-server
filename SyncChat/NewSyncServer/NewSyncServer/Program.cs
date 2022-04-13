@@ -29,6 +29,10 @@ namespace NewSyncServer
                 
                 ConnectionManager cManager = new ConnectionManager();
                 cManager.Init(clientsocket, () => new ClientSession());
+                if (!cManager.isConnected)
+                {
+                    cManager.Dispose();
+                }
             }
         }
         
