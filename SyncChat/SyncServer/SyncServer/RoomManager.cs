@@ -63,7 +63,7 @@ namespace SyncServer
         {
             if (cSession.roomNum == -1)
             {
-                Console.WriteLine("bad");
+                Console.WriteLine("접속한 방 없음 체크.");
             }
             else
             {
@@ -82,12 +82,14 @@ namespace SyncServer
                 short listbox = (short) PACKETID.NTF_ROOM_LEAVE_USER;
                 byte[] leaveId = Encoding.UTF8.GetBytes(cSession.id);
                 SendManager.BroadCast(chatroomList[rNum].RoomMember, socket, listbox, leaveId, 0);
-                //state update to me
+                //state update to me =>비정상적인 종료로 소켓 disconnect되는경우 보낼수 없음.
                 if (flag == 0)
                 {
                     short leaveMe = (short) PACKETID.RES_ROOM_LEAVE;
                     SendManager.BroadCast(socket, leaveMe, leaveId);
                 }
+                // room init
+                cSession.roomNum = -1;
 
             }
   

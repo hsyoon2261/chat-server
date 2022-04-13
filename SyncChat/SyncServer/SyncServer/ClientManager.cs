@@ -50,7 +50,6 @@ namespace SyncServer
                     int recvBytes = this.socket.Receive(recvBuff);
                     if (recvBytes != 0)
                     {
-                        Console.WriteLine("메시지들어옴");
                         byte[] readpacket = new byte[recvBytes];
                         Buffer.BlockCopy(recvBuff, 0, readpacket, 0, recvBytes);
                         Array.Clear(recvBuff, 0, 1024);
@@ -106,13 +105,9 @@ namespace SyncServer
                 Console.WriteLine("bad");
             else
             {
-                //if((ERROR_CODE)packet.PacketID ==null)
-                //PacketData sendpacket = PacketGenerator(packet);
+                //if((ERROR_CODE)packet.PacketID ==null) =>외부에서 비정상적인 접속?
                 SendProcess(packet);
-                Thread.Sleep(300); //send오류 찾기위해
-                //byte[] finalsend = PacketToBytes.Make(sendpacket.PacketID, sendpacket.BodyData);
             }
-            //update
         }
 
         void SendProcess(PacketData packet)
@@ -154,7 +149,7 @@ namespace SyncServer
                     RoomManager.Leave(cSession, packet.BodyData, socket,1);
                     break;
                 case 1005: //Disconnect
-                    Console.WriteLine("로그아웃");
+                    Console.WriteLine("클라이언트 접속 종료");
                     RoomManager.Leave(cSession, packet.BodyData , socket,1);
                     Dispose();
                     break;
