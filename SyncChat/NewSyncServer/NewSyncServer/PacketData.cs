@@ -1,6 +1,7 @@
 ﻿namespace NewSyncServer
 {
-   // 0 ~ 9999
+    // 슈퍼소켓라이트 튜토리얼 채팅서버 규칙임. 그대로 사용할 예정.
+    // 0 ~ 9999
     public enum ERROR_CODE : short
     {
         NONE                        = 0, // 에러가 아니다

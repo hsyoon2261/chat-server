@@ -17,20 +17,23 @@ namespace NewSyncServer
     {
         private int PacketHeaderSize = 5;
         
-        public void Init(ClientSession clientSession, int recvBytes, byte[] recvBuff)
+        
+        //메인처리 프로세스
+        public void Process(ClientSession clientSession, int recvBytes, byte[] recvBuff) 
                 {
                     var readpacket = new byte[recvBytes];
                     Buffer.BlockCopy(recvBuff, 0, readpacket, 0, recvBytes);
-                    Queue<PacketData> RecvPacketQueue = CuttingPacket(recvBytes,readpacket);
+                    Queue<PacketData> RecvPacketQueue = CuttingPacket(recvBytes,readpacket); //수신 바이트 처리
                             
                     while (RecvPacketQueue.Count > 0)
                     {
                         var sendpacket = RecvPacketQueue.Dequeue();
-                        Send( clientSession,sendpacket);
+                        Send( clientSession,sendpacket); // 송신 (packingid 분석 + 그에 맞는 송신까지)
                     }
                 }
 
-        public Queue<PacketData> CuttingPacket(int recvBytes, byte[] readPacket)
+        //수신 바이트를 packet 형태로 큐에 넣는다.
+        public Queue<PacketData> CuttingPacket(int recvBytes, byte[] readPacket) 
         {
             Queue<PacketData> packetQueue = new Queue<PacketData>();
             var dataSize = readPacket.Length;
@@ -51,14 +54,16 @@ namespace NewSyncServer
             return packetQueue;
         }
 
+        //꺼내진 패킷을 바이트로 만들어?서 올바른 주소로 보내주는 역할
         public void Send(ClientSession user, PacketData sendPacket)
         {
+            //packit 아이디로 송신지 결정
             switch (sendPacket.PacketID)
             {
                 case (short) PACKETID.RES_LOGIN:
                     if (user.mode == ClientSession.Mode.Lobby)
                     {
-                        string id = Encoding.UTF8.GetString(sendPacket.BodyData);
+                        var id = Encoding.UTF8.GetString(sendPacket.BodyData);
                         user.GetName(id);
                         GameUser.Insert(user,ClientSession.Mode.Lobby);
                         GameUser.Insert(user,ClientSession.Mode.Login);
@@ -71,6 +76,7 @@ namespace NewSyncServer
             }
         }
         
+        //패킷을 바이트로(규칙에 맞게)
         public byte[] PacketToBytes(Int16 packetID, byte[] bodyData)
         {
             byte type = 0;

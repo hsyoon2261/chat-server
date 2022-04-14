@@ -2,7 +2,7 @@
 
 namespace NewSyncServer
 {
-    
+    //연결된 소켓의 클라이언트 정보
     public class ClientSession
     {
         public enum Mode

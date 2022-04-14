@@ -7,12 +7,14 @@ namespace NewSyncServer
 {
     public class ConnectionManager : IDisposable
     {
+        //Managing 하는 Socket 정보
         public bool isConnected = true;
         private Socket _socket;
         private ClientSession _clientSession;
         private PacketProcess _packetGenerator = new PacketProcess();
 
 
+        //통신 시작시 세팅
         public void Init(Socket socket, Func<ClientSession> sessionFactory)
         {
             _clientSession = sessionFactory.Invoke();
@@ -24,6 +26,7 @@ namespace NewSyncServer
             th.Join();
         }
 
+        //쓰레드 영역
         public void Run()
         {
             while (isConnected)
@@ -36,10 +39,10 @@ namespace NewSyncServer
                     {
                         
                         var recvBytes = _socket.Receive(recvBuff);
-                        
+                        //패킷 수신하면 본격적으로 수신/송신 시작
                         if (recvBytes != 0)
                         {
-                            _packetGenerator.Init(_clientSession, recvBytes, recvBuff);
+                            _packetGenerator.Process(_clientSession, recvBytes, recvBuff);
                         }
                         else
                         {
@@ -51,12 +54,12 @@ namespace NewSyncServer
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("클라이언트쪽에서 접속을 끊었습니다.");
+                    Console.WriteLine("클라이언트쪽에서 접속을 끊었습니다.");  //송신 실패의 사유가 대부분임.
                     Console.WriteLine($"{e.ToString()}");
                     isConnected = false;
                 }
             }
-            Destroy();
+            Destroy(); //isConnected==false
         }
 
 
